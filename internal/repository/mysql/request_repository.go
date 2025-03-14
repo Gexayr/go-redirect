@@ -20,8 +20,8 @@ func (r *RequestRepository) SaveRequest(request *models.Request) error {
 	query := `
 		INSERT INTO request_logs (
 			timestamp, ip_address, request_url, request_method,
-			request_headers, request_body, processing_status
-		) VALUES (?, ?, ?, ?, ?, ?, 'pending')
+			request_headers, processing_status
+		) VALUES (?, ?, ?, ?, ?, 'processed')
 	`
 
 	result, err := r.db.Exec(
@@ -31,7 +31,6 @@ func (r *RequestRepository) SaveRequest(request *models.Request) error {
 		request.RequestURL,
 		request.RequestMethod,
 		request.RequestHeaders,
-		request.RequestBody,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to save request: %w", err)

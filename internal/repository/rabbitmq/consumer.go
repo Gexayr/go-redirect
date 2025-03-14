@@ -87,14 +87,20 @@ func (c *Consumer) Consume(handler func(*models.Request) error) error {
 			var request models.Request
 			if err := json.Unmarshal(d.Body, &request); err != nil {
 				logger.Error("Failed to unmarshal request", "error", err.Error())
+				// Reject the message and requeue it
+				d.Reject(true)
 				continue
 			}
 
 			if err := handler(&request); err != nil {
 				logger.Error("Failed to process request", "error", err.Error())
+				// Reject the message and requeue it
+				d.Reject(true)
 				continue
 			}
 
+			// Acknowledge the message after successful processing
+			d.Ack(false)
 			logger.Info("Successfully processed request", "request_id", request.ID)
 		}
 	}()

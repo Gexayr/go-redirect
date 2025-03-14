@@ -67,7 +67,6 @@ func (h *RequestHandler) ProcessRequest(c *gin.Context) {
 		RequestURL:     c.Request.URL.String(),
 		RequestMethod:  c.Request.Method,
 		RequestHeaders: headersJSON,
-		RequestBody:    []byte("{}"),
 	}
 
 	// Get redirect URL from database

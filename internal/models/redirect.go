@@ -10,15 +10,8 @@ type Redirect struct {
 	RedirectType     string    `json:"redirect_type"`
 	RedirectStatus   int       `json:"redirect_status"`
 	RedirectTimestamp time.Time `json:"redirect_timestamp"`
+	CreatedAt        time.Time `json:"created_at"`
 }
-
-type RedirectType string
-
-const (
-	RedirectTypeSite1 RedirectType = "site1"
-	RedirectTypeSite2 RedirectType = "site2"
-	RedirectTypeSite3 RedirectType = "site3"
-)
 
 type RedirectMapping struct {
 	ID          int64     `json:"id"`

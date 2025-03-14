@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"time"
 	_ "github.com/go-sql-driver/mysql"
 	"platform/internal/config"
 	"platform/internal/models"
@@ -24,25 +25,42 @@ func main() {
 		logger.Fatal("Failed to load configuration", err)
 	}
 
-	// Connect to MySQL
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		cfg.MySQL.User,
-		cfg.MySQL.Password,
-		cfg.MySQL.Host,
-		cfg.MySQL.Port,
-		cfg.MySQL.DBName,
-	)
+	// Connect to MySQL with retries
+	maxRetries := 10
+	retryDelay := 5 * time.Second
 
-	db, err := sql.Open("mysql", dsn)
+	var db *sql.DB
+	for i := 0; i < maxRetries; i++ {
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+			cfg.MySQL.User,
+			cfg.MySQL.Password,
+			cfg.MySQL.Host,
+			cfg.MySQL.Port,
+			cfg.MySQL.DBName,
+		)
+
+		db, err = sql.Open("mysql", dsn)
+		if err != nil {
+			logger.Error("Failed to open database connection", "attempt", i+1, "error", err)
+			time.Sleep(retryDelay)
+			continue
+		}
+
+		// Test database connection
+		err = db.Ping()
+		if err == nil {
+			logger.Info("Successfully connected to database")
+			break
+		}
+
+		logger.Error("Failed to ping database", "attempt", i+1, "error", err)
+		time.Sleep(retryDelay)
+	}
+
 	if err != nil {
-		logger.Fatal("Failed to connect to MySQL", err)
+		logger.Fatal("Failed to connect to database after multiple attempts", err)
 	}
 	defer db.Close()
-
-	// Test database connection
-	if err := db.Ping(); err != nil {
-		logger.Fatal("Failed to ping database", err)
-	}
 
 	// Initialize repositories
 	requestRepo := mysql.NewRequestRepository(db)
@@ -99,23 +117,23 @@ func main() {
 
 func extractHashFromURL(url string) string {
 	// Extract hash from URL path
-	// Example: http://localhost:8080/123456?click_id=click-hash -> 123456
+	// Example: /345678?click_id=clic-hash -> 345678
 	parts := strings.Split(url, "/")
-	if len(parts) >= 3 {
-		return parts[2]
+	if len(parts) >= 2 {
+		// Remove any query parameters
+		hash := strings.Split(parts[1], "?")[0]
+		return hash
 	}
 	return ""
 }
 
 func determineRedirectType(redirectURL string) string {
-	switch {
-	case strings.Contains(redirectURL, "site1.com"):
-		return string(models.RedirectTypeSite1)
-	case strings.Contains(redirectURL, "site2.com"):
-		return string(models.RedirectTypeSite2)
-	case strings.Contains(redirectURL, "site3.com"):
-		return string(models.RedirectTypeSite3)
-	default:
-		return ""
+	// Extract the domain from the URL
+	// Example: http://site1.com/special-offer -> site1
+	parts := strings.Split(redirectURL, "/")
+	if len(parts) >= 3 {
+		domain := strings.Split(parts[2], ".")[0]
+		return domain
 	}
+	return "unknown"
 } 

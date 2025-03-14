@@ -43,6 +43,21 @@ platform/
 - MySQL database runs on port 3306
 - RabbitMQ management interface available on port 15672
 
+## Message Processing Flow
+
+The platform follows a specific flow for processing requests:
+
+1. The API Gateway publishes messages to RabbitMQ
+2. The database worker consumes messages and processes them:
+   - Saves the request to `request_logs`
+   - Extracts the hash from the URL
+   - If a hash is found, gets the redirect URL from `redirect_mappings`
+   - If a redirect URL is found, saves the redirect to `redirect_history`
+3. The message is acknowledged only after all processing is complete
+4. If any error occurs, the message is rejected and requeued
+
+This flow ensures reliable message processing and data persistence, with automatic retries for failed operations.
+
 ## License
 
 MIT 

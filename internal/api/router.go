@@ -24,10 +24,12 @@ func SetupRouter(publisher *rabbitmq.Publisher) *gin.Engine {
 	}
 
 	// Initialize repositories
+	clientRepo := mysql.NewClientRepository(database.GetDB())
 	redirectRepo := mysql.NewRedirectRepository(database.GetDB())
 
-	// Initialize request handler
+	// Initialize handlers
 	requestHandler := handlers.NewRequestHandler(publisher, redirectRepo)
+	clientHandler := handlers.NewClientHandler(clientRepo, redirectRepo)
 
 	// Create router
 	router := gin.New()
@@ -38,6 +40,18 @@ func SetupRouter(publisher *rabbitmq.Publisher) *gin.Engine {
 
 	// Health check
 	router.GET("/health", handlers.HealthCheck)
+
+	// Public endpoints
+	router.POST("/api/register", clientHandler.Register)
+	router.POST("/api/login", clientHandler.Login)
+
+	// Protected endpoints
+	protected := router.Group("/api")
+	protected.Use(middleware.Auth(clientRepo))
+	{
+		protected.POST("/redirects", clientHandler.CreateRedirectMapping)
+		protected.GET("/redirects", clientHandler.GetRedirectMappings)
+	}
 
 	// Hash endpoint with dynamic hash parameter
 	router.GET("/:hash", requestHandler.ProcessRequest)

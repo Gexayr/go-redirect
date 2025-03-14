@@ -1,0 +1,38 @@
+### Health Check
+GET http://localhost:8080/health
+
+### Register a new client
+POST http://localhost:8080/api/register
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "password": "password123",
+    "email": "test@example.com"
+}
+
+### Login with existing client
+POST http://localhost:8080/api/login
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "password": "password123"
+}
+
+### Create a new redirect mapping (requires JWT token)
+POST http://localhost:8080/api/redirects
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+    "redirect_url": "https://example.com",
+    "redirect_url_black": "https://blacklist-example.com"
+}
+
+### Get all redirect mappings for the client (requires JWT token)
+GET http://localhost:8080/api/redirects
+Authorization: Bearer {{jwt_token}}
+
+### Test redirect with hash
+GET http://localhost:8080/345678 

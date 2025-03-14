@@ -14,9 +14,16 @@ type Redirect struct {
 }
 
 type RedirectMapping struct {
-	ID          int64     `json:"id"`
-	Hash        string    `json:"hash"`
-	RedirectURL string    `json:"redirect_url"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID              int64     `json:"id"`
+	ClientID        int64     `json:"client_id"`
+	Hash            string    `json:"hash"`
+	RedirectURL     string    `json:"redirect_url"`
+	RedirectURLBlack string    `json:"redirect_url_black"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
+}
+
+type RedirectMappingCreate struct {
+	RedirectURL     string `json:"redirect_url" binding:"required,url"`
+	RedirectURLBlack string `json:"redirect_url_black" binding:"required,url"`
 } 

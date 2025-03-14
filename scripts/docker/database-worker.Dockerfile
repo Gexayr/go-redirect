@@ -21,7 +21,6 @@ WORKDIR /app
 
 # Copy the binary from builder
 COPY --from=builder /app/database-worker .
-COPY --from=builder /app/config ./config
 
 # Run the application
 CMD ["./database-worker"] 

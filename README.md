@@ -19,26 +19,48 @@ A backend platform built with Golang, RabbitMQ, and MySQL for handling request r
 
 ## Environment Variables
 
-Create a `.env` file in the root directory with the following variables:
+The platform uses environment variables for configuration. A template file `env.example` is provided with all required variables and their descriptions.
 
+1. Copy the example file:
+```bash
+cp env.example .env
+```
+
+2. Update the `.env` file with your specific values:
 ```env
-# API Gateway
+# API Gateway Configuration
 API_PORT=8080
 API_HOST=0.0.0.0
 
-# MySQL
+# MySQL Database Configuration
 MYSQL_ROOT_PASSWORD=your_root_password
 MYSQL_DATABASE=platform_db
 MYSQL_USER=platform_user
 MYSQL_PASSWORD=platform_password
+MYSQL_HOST=mysql
+MYSQL_PORT=3306
 
-# RabbitMQ
+# RabbitMQ Configuration
 RABBITMQ_DEFAULT_USER=platform_user
 RABBITMQ_DEFAULT_PASS=platform_password
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_MANAGEMENT_PORT=15672
 
-# JWT
+# JWT Authentication
 JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRATION_HOURS=24
+
+# Logging Configuration
+LOG_LEVEL=info
+LOG_FORMAT=json
 ```
+
+Important notes:
+- Never commit the `.env` file to version control
+- Keep your `JWT_SECRET` secure and unique in production
+- Update service URLs according to your environment
+- Adjust logging configuration as needed
 
 ## Getting Started
 

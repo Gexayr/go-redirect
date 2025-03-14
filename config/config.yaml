@@ -1,0 +1,16 @@
+server:
+  port: "8080"
+
+mysql:
+  host: "localhost"
+  port: "3306"
+  user: "root"
+  password: "root"
+  dbname: "platform_db"
+
+rabbitmq:
+  host: "localhost"
+  port: "5672"
+  user: "guest"
+  password: "guest"
+  queue: "request_queue" 
